@@ -33,6 +33,8 @@ export const Route = createFileRoute('/posts/$postId/')({
 function PostComponent() {
   const { postId } = useParams({ from: '/posts/$postId/' })
   const { title, content } = Route.useLoaderData()
+
+  // const data = api
   
   return (
     <article className="prose prose-zinc lg:prose-lg">
