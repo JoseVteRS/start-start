@@ -1,56 +1,48 @@
-import { DefaultCatchBoundary } from "@/components/default-catch-boundary";
-import { MainNav } from "@/components/main-nav";
-import { NotFound } from "@/components/not-found";
-import appCSSTailwind from "@/styles/global.css?url";
+import type { QueryClient } from "@tanstack/react-query";
 import {
+  createRootRouteWithContext,
   HeadContent,
-  Link,
   Outlet,
   Scripts,
-  createRootRoute,
 } from "@tanstack/react-router";
-import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
+import { createServerFn } from "@tanstack/react-start";
+import { getWebRequest } from "@tanstack/react-start/server";
+import { TRPCOptionsProxy } from "@trpc/tanstack-react-query";
 import * as React from "react";
 
-const MENU_ITEMS = [
-  { to: "/", label: "Inicio" },
-  { to: "/posts", label: "Blog" },
-  { to: "/about", label: "Sobre Mí" },
-  { to: "/contact", label: "Contacto" },
-];
+import { DefaultCatchBoundary } from "@/components/default-catch-boundary";
 
-export const Route = createRootRoute({
+import appCss from "@/styles/global.css?url";
+import { AppRouter } from "@/trpc/router";
+import { ReactQueryDevtools, TanStackRouterDevtools } from "@/utils/dev-tools";
+import { seo } from "@/utils/seo";
+
+const getServerSession = createServerFn({ method: "GET" }).handler(async () => {
+  const { headers } = getWebRequest()!;
+});
+
+export const Route = createRootRouteWithContext<{
+  queryClient: QueryClient;
+  trpc: TRPCOptionsProxy<AppRouter>;
+}>()({
+  beforeLoad: async () => {
+    const session = await getServerSession();
+
+    return { session };
+  },
   head: () => ({
     meta: [
-      {
-        charSet: "utf-8",
-      },
-      {
-        name: "viewport",
-        content: "width=device-width, initial-scale=1",
-      },
+      { charSet: "utf-8" },
+      { name: "viewport", content: "width=device-width, initial-scale=1" },
+      ...seo({
+        title: "kolm start",
+        description:
+          "TanStack Start starter with tRPC, Drizzle ORM, better-auth and TailwindCSS ",
+      }),
     ],
     links: [
-      { rel: "stylesheet", href: appCSSTailwind },
-      {
-        rel: "apple-touch-icon",
-        sizes: "180x180",
-        href: "/apple-touch-icon.png",
-      },
-      {
-        rel: "icon",
-        type: "image/png",
-        sizes: "32x32",
-        href: "/favicon-32x32.png",
-      },
-      {
-        rel: "icon",
-        type: "image/png",
-        sizes: "16x16",
-        href: "/favicon-16x16.png",
-      },
-      { rel: "manifest", href: "/site.webmanifest", color: "#fffff" },
-      { rel: "icon", href: "/favicon.ico" },
+      { rel: "stylesheet", href: appCss },
+      { rel: "icon", href: "/favicon.svg" },
     ],
   }),
   errorComponent: (props) => {
@@ -60,32 +52,27 @@ export const Route = createRootRoute({
       </RootDocument>
     );
   },
-  notFoundComponent: () => <NotFound />,
   component: RootComponent,
 });
 
 function RootComponent() {
   return (
     <RootDocument>
-      <div className="min-h-screen flex flex-col">
-        <MainNav />
-        <main className="flex-1">
-          <Outlet />
-        </main>
-      </div>
+      <Outlet />
     </RootDocument>
   );
 }
 
 function RootDocument({ children }: { children: React.ReactNode }) {
   return (
-    <html>
+    <html lang="en">
       <head>
         <HeadContent />
       </head>
-      <body>
+      <body className="antialiased font-display min-h-screen flex flex-col">
         {children}
         <TanStackRouterDevtools position="bottom-right" />
+        <ReactQueryDevtools buttonPosition="bottom-left" />
         <Scripts />
       </body>
     </html>

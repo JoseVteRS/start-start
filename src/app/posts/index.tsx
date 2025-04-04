@@ -1,18 +1,26 @@
+import { Spinner } from "@/components/spinner";
+import { useTRPC } from "@/trpc/react";
+import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 
-const POSTS = [
-  { id: 1, title: "Introducción a TanStack Router", excerpt: "Aprende los conceptos básicos..." },
-  { id: 2, title: "Layouts en TanStack", excerpt: "Cómo estructurar tu aplicación..." },
-  { id: 3, title: "Data Loading", excerpt: "Patrones de carga de datos..." },
-  { id: 4, title: "Rutas Dinámicas", excerpt: "Trabajando con parámetros..." },
-  { id: 5, title: "Optimización", excerpt: "Mejores prácticas de rendimiento..." },
-];
-
 export const Route = createFileRoute("/posts/")({
+  beforeLoad: Spinner,
+  loader: async ({ context }) => {
+    await context.queryClient.prefetchQuery(
+      context.trpc.posts.get.queryOptions()
+    );
+  },
   component: PostsIndex,
 });
 
 function PostsIndex() {
+  const trpc = useTRPC();
+  const { data, isLoading } = useSuspenseQuery(trpc.posts.get.queryOptions());
+
+  console.log({ data });
+
+  if (!data || isLoading) return null;
+
   return (
     <>
       <header className="mb-8">
@@ -23,7 +31,7 @@ function PostsIndex() {
       </header>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {POSTS.map((post) => (
+        {data.res.map((post) => (
           <Link
             key={post.id}
             to="/posts/$postId"
