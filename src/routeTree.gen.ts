@@ -11,16 +11,22 @@
 // Import Routes
 
 import { Route as rootRoute } from './app/__root'
+import { Route as ContactImport } from './app/contact'
 import { Route as AuthImport } from './app/auth'
 import { Route as AppImport } from './app/_app'
-import { Route as PostsRouteImport } from './app/posts/route'
 import { Route as RouteImport } from './app/route'
 import { Route as PostsIndexImport } from './app/posts/index'
 import { Route as AboutIndexImport } from './app/about/index'
 import { Route as AuthSignInImport } from './app/auth/sign-in'
-import { Route as PostsPostIdIndexImport } from './app/posts/$postId/index'
+import { Route as PostsPostIdRouteImport } from './app/posts/$postId/route'
 
 // Create/Update Routes
+
+const ContactRoute = ContactImport.update({
+  id: '/contact',
+  path: '/contact',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const AuthRoute = AuthImport.update({
   id: '/auth',
@@ -33,12 +39,6 @@ const AppRoute = AppImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const PostsRouteRoute = PostsRouteImport.update({
-  id: '/posts',
-  path: '/posts',
-  getParentRoute: () => rootRoute,
-} as any)
-
 const RouteRoute = RouteImport.update({
   id: '/',
   path: '/',
@@ -46,9 +46,9 @@ const RouteRoute = RouteImport.update({
 } as any)
 
 const PostsIndexRoute = PostsIndexImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => PostsRouteRoute,
+  id: '/posts/',
+  path: '/posts/',
+  getParentRoute: () => rootRoute,
 } as any)
 
 const AboutIndexRoute = AboutIndexImport.update({
@@ -63,10 +63,10 @@ const AuthSignInRoute = AuthSignInImport.update({
   getParentRoute: () => AuthRoute,
 } as any)
 
-const PostsPostIdIndexRoute = PostsPostIdIndexImport.update({
-  id: '/$postId/',
-  path: '/$postId/',
-  getParentRoute: () => PostsRouteRoute,
+const PostsPostIdRouteRoute = PostsPostIdRouteImport.update({
+  id: '/posts/$postId',
+  path: '/posts/$postId',
+  getParentRoute: () => rootRoute,
 } as any)
 
 // Populate the FileRoutesByPath interface
@@ -78,13 +78,6 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof RouteImport
-      parentRoute: typeof rootRoute
-    }
-    '/posts': {
-      id: '/posts'
-      path: '/posts'
-      fullPath: '/posts'
-      preLoaderRoute: typeof PostsRouteImport
       parentRoute: typeof rootRoute
     }
     '/_app': {
@@ -99,6 +92,20 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthImport
+      parentRoute: typeof rootRoute
+    }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactImport
+      parentRoute: typeof rootRoute
+    }
+    '/posts/$postId': {
+      id: '/posts/$postId'
+      path: '/posts/$postId'
+      fullPath: '/posts/$postId'
+      preLoaderRoute: typeof PostsPostIdRouteImport
       parentRoute: typeof rootRoute
     }
     '/auth/sign-in': {
@@ -117,36 +124,15 @@ declare module '@tanstack/react-router' {
     }
     '/posts/': {
       id: '/posts/'
-      path: '/'
-      fullPath: '/posts/'
+      path: '/posts'
+      fullPath: '/posts'
       preLoaderRoute: typeof PostsIndexImport
-      parentRoute: typeof PostsRouteImport
-    }
-    '/posts/$postId/': {
-      id: '/posts/$postId/'
-      path: '/$postId'
-      fullPath: '/posts/$postId'
-      preLoaderRoute: typeof PostsPostIdIndexImport
-      parentRoute: typeof PostsRouteImport
+      parentRoute: typeof rootRoute
     }
   }
 }
 
 // Create and export the route tree
-
-interface PostsRouteRouteChildren {
-  PostsIndexRoute: typeof PostsIndexRoute
-  PostsPostIdIndexRoute: typeof PostsPostIdIndexRoute
-}
-
-const PostsRouteRouteChildren: PostsRouteRouteChildren = {
-  PostsIndexRoute: PostsIndexRoute,
-  PostsPostIdIndexRoute: PostsPostIdIndexRoute,
-}
-
-const PostsRouteRouteWithChildren = PostsRouteRoute._addFileChildren(
-  PostsRouteRouteChildren,
-)
 
 interface AuthRouteChildren {
   AuthSignInRoute: typeof AuthSignInRoute
@@ -160,84 +146,90 @@ const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
 
 export interface FileRoutesByFullPath {
   '/': typeof RouteRoute
-  '/posts': typeof PostsRouteRouteWithChildren
   '': typeof AppRoute
   '/auth': typeof AuthRouteWithChildren
+  '/contact': typeof ContactRoute
+  '/posts/$postId': typeof PostsPostIdRouteRoute
   '/auth/sign-in': typeof AuthSignInRoute
   '/about': typeof AboutIndexRoute
-  '/posts/': typeof PostsIndexRoute
-  '/posts/$postId': typeof PostsPostIdIndexRoute
+  '/posts': typeof PostsIndexRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof RouteRoute
   '': typeof AppRoute
   '/auth': typeof AuthRouteWithChildren
+  '/contact': typeof ContactRoute
+  '/posts/$postId': typeof PostsPostIdRouteRoute
   '/auth/sign-in': typeof AuthSignInRoute
   '/about': typeof AboutIndexRoute
   '/posts': typeof PostsIndexRoute
-  '/posts/$postId': typeof PostsPostIdIndexRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof RouteRoute
-  '/posts': typeof PostsRouteRouteWithChildren
   '/_app': typeof AppRoute
   '/auth': typeof AuthRouteWithChildren
+  '/contact': typeof ContactRoute
+  '/posts/$postId': typeof PostsPostIdRouteRoute
   '/auth/sign-in': typeof AuthSignInRoute
   '/about/': typeof AboutIndexRoute
   '/posts/': typeof PostsIndexRoute
-  '/posts/$postId/': typeof PostsPostIdIndexRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/posts'
     | ''
     | '/auth'
+    | '/contact'
+    | '/posts/$postId'
     | '/auth/sign-in'
     | '/about'
-    | '/posts/'
-    | '/posts/$postId'
+    | '/posts'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | ''
     | '/auth'
+    | '/contact'
+    | '/posts/$postId'
     | '/auth/sign-in'
     | '/about'
     | '/posts'
-    | '/posts/$postId'
   id:
     | '__root__'
     | '/'
-    | '/posts'
     | '/_app'
     | '/auth'
+    | '/contact'
+    | '/posts/$postId'
     | '/auth/sign-in'
     | '/about/'
     | '/posts/'
-    | '/posts/$postId/'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   RouteRoute: typeof RouteRoute
-  PostsRouteRoute: typeof PostsRouteRouteWithChildren
   AppRoute: typeof AppRoute
   AuthRoute: typeof AuthRouteWithChildren
+  ContactRoute: typeof ContactRoute
+  PostsPostIdRouteRoute: typeof PostsPostIdRouteRoute
   AboutIndexRoute: typeof AboutIndexRoute
+  PostsIndexRoute: typeof PostsIndexRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   RouteRoute: RouteRoute,
-  PostsRouteRoute: PostsRouteRouteWithChildren,
   AppRoute: AppRoute,
   AuthRoute: AuthRouteWithChildren,
+  ContactRoute: ContactRoute,
+  PostsPostIdRouteRoute: PostsPostIdRouteRoute,
   AboutIndexRoute: AboutIndexRoute,
+  PostsIndexRoute: PostsIndexRoute,
 }
 
 export const routeTree = rootRoute
@@ -251,21 +243,16 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
-        "/posts",
         "/_app",
         "/auth",
-        "/about/"
+        "/contact",
+        "/posts/$postId",
+        "/about/",
+        "/posts/"
       ]
     },
     "/": {
       "filePath": "route.tsx"
-    },
-    "/posts": {
-      "filePath": "posts/route.tsx",
-      "children": [
-        "/posts/",
-        "/posts/$postId/"
-      ]
     },
     "/_app": {
       "filePath": "_app.tsx"
@@ -276,6 +263,12 @@ export const routeTree = rootRoute
         "/auth/sign-in"
       ]
     },
+    "/contact": {
+      "filePath": "contact.tsx"
+    },
+    "/posts/$postId": {
+      "filePath": "posts/$postId/route.tsx"
+    },
     "/auth/sign-in": {
       "filePath": "auth/sign-in.tsx",
       "parent": "/auth"
@@ -284,12 +277,7 @@ export const routeTree = rootRoute
       "filePath": "about/index.tsx"
     },
     "/posts/": {
-      "filePath": "posts/index.tsx",
-      "parent": "/posts"
-    },
-    "/posts/$postId/": {
-      "filePath": "posts/$postId/index.tsx",
-      "parent": "/posts"
+      "filePath": "posts/index.tsx"
     }
   }
 }

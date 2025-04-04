@@ -2,7 +2,7 @@
   "include": [
     "**/*.ts",
     "**/*.tsx"
-  ],
+, "postcss.config.mjs"  ],
   "compilerOptions": {
     "strict": true,
     "esModuleInterop": true,

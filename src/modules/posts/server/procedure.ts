@@ -1,4 +1,6 @@
 import { createTRPCRouter, publicProcedure } from "@/trpc/init";
+import { TRPCError } from "@trpc/server";
+import { z } from "zod";
 
 const POSTS = [
   {
@@ -20,8 +22,35 @@ const POSTS = [
   },
 ];
 
+const getByIdInputSchema = z.object({
+  id: z.number(),
+});
+
 export const postsRouter = createTRPCRouter({
   get: publicProcedure.query(async () => {
     return { res: POSTS };
   }),
+  getById: publicProcedure
+    .input(getByIdInputSchema)
+    .query(async ({ input }) => {
+      const { success, data, error } = getByIdInputSchema.safeParse(input);
+
+      if (!success) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: `Invalid input: ${error?.message}`,
+        });
+      }
+
+      const post = POSTS.find((post) => post.id === Number(input.id));
+
+      if (!post) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: `Post with id ${input.id} not found`,
+        });
+      }
+
+      return post;
+    }),
 });
