@@ -110,6 +110,10 @@ function RouteComponent() {
           </div>
         </div>
       </div>
+
+      <div>
+        <Outlet />
+      </div>
     </div>
   );
 }
