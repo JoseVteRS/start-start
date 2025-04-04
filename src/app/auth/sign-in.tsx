@@ -14,7 +14,7 @@ function RouteComponent() {
     <main className="flex-1 flex flex-col items-center justify-center gap-4">
       <header className="flex flex-col justify-center items-center gap-2">
         <Logo />
-        <h1 className="font-extrabold text-2xl">kolm start</h1>
+        <h1 className="font-extrabold text-2xl">Start start</h1>
       </header>
       <Button onClick={() => {}} type="button">
         Sign in

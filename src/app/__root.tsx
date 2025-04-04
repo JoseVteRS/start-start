@@ -35,7 +35,7 @@ export const Route = createRootRouteWithContext<{
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       ...seo({
-        title: "kolm start",
+        title: "Start start",
         description:
           "TanStack Start starter with tRPC, Drizzle ORM, better-auth and TailwindCSS ",
       }),
